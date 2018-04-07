@@ -67,28 +67,41 @@ Fabric.prototype.render = function(noda) {
 };
 Fabric.prototype.dragenterFun = function(e) {}
 Fabric.prototype.dragleaveFun = function(e) {}
+Fabric.prototype.dragFun = function(e) {
+    e.stopPropagation();
+    dragElem.clone.style.border = "2px solid red";
+    dragElem.clone.style.left = e.pageX - dragElem.deltaX + 'px';
+    dragElem.clone.style.top = e.pageY - dragElem.deltaY + 'px';
+}
 Fabric.prototype.dragStartFun = function(e) {
     e.stopPropagation();
-    parentHidden = this.cloneNode(true);
+    let clone = this.cloneNode(true);
+    document.body.appendChild(clone);
+    clone.classList.add("clone");
     this.id = 'newId';
-    this.style.opacity = '0';
-    console.log(parentHidden);
-    parentHidden.style.opacity = '1';
-    dragElem.code = this;
     let coords = getCoords(this),
         deltaX = e.pageX - coords.left,
         deltaY = e.pageY - coords.top;
-    e.dataTransfer.setDragImage(parentHidden, deltaX, deltaY);
+    dragElem.clone = clone;
+    dragElem.element = this;
+    dragElem.parent = this.parentNode;
+    dragElem.deltaX = deltaX;
+    dragElem.deltaY = deltaY;
+    dragElem.coordsTop = coords.top;
+    this.style.opacity = '0';
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("Text", this.id);
 }
 Fabric.prototype.dragendFun = function(e) {
-    dragElem.code.style.opacity = '1';
+    dragElem.element.style.opacity = '1';
+    let clone = document.querySelector('.clone');
+    clone.parentNode.removeChild(clone);
 }
 Fabric.prototype.dragoverFun = function(e) {
     let height = parseInt(window.getComputedStyle(this, null).getPropertyValue('height'));
     height = Math.ceil(height / 2);
     let delta = e.offsetY - height;
+    console.log(delta);
     e.preventDefault();
     e.stopPropagation();
     return false;
@@ -128,6 +141,7 @@ Fabric.create = function(type, text) {
         newFabric.code.addEventListener('dragend', newFabric.dragendFun, false);
         newFabric.code.addEventListener('dragover', newFabric.dragoverFun, false);
         newFabric.code.addEventListener('drop', newFabric.dropFun, false);
+        newFabric.code.addEventListener('drag', newFabric.dragFun, false);
     }
     return newFabric;
 }
