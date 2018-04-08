@@ -69,9 +69,9 @@ Fabric.prototype.dragenterFun = function(e) {}
 Fabric.prototype.dragleaveFun = function(e) {}
 Fabric.prototype.dragFun = function(e) {
     e.stopPropagation();
-    dragElem.clone.style.border = "2px solid red";
     dragElem.clone.style.left = e.pageX - dragElem.deltaX + 'px';
     dragElem.clone.style.top = e.pageY - dragElem.deltaY + 'px';
+    this.style.width = this.nodeName == 'DIV' ? '250px' : '280px';
 }
 Fabric.prototype.dragStartFun = function(e) {
     e.stopPropagation();
@@ -95,15 +95,66 @@ Fabric.prototype.dragStartFun = function(e) {
 Fabric.prototype.dragendFun = function(e) {
     dragElem.element.style.opacity = '1';
     let clone = document.querySelector('.clone');
+    let clone2 = document.querySelector('#tempId');
     clone.parentNode.removeChild(clone);
+    clone2.parentNode.removeChild(clone2);
+    e.stopPropagation();
 }
 Fabric.prototype.dragoverFun = function(e) {
-    let height = parseInt(window.getComputedStyle(this, null).getPropertyValue('height'));
-    height = Math.ceil(height / 2);
-    let delta = e.offsetY - height;
-    console.log(delta);
-    e.preventDefault();
     e.stopPropagation();
+    let height = parseInt(window.getComputedStyle(this, null).getPropertyValue('height'));
+    let width = parseInt(window.getComputedStyle(this, null).getPropertyValue('width'));
+    height = Math.ceil(height / 2);
+    width = Math.ceil(width / 2);
+    let delta = e.offsetY - height;
+    let delta2 = e.offsetX - width;
+    let enough = document.querySelector('#tempId') ? true : false;
+    if (!enough) {
+        let newItem = document.createElement(dragElem.element.tagName);
+        newItem.style.width = dragElem.element.tagName === 'DIV' ? (dragElem.element.offsetWidth - 14) + 'px' : dragElem.element.offsetWidth + 'px';
+        newItem.style.height = dragElem.element.offsetHeight + 'px';
+        newItem.style.backgroundColor = '#666B6B';
+        newItem.style.borderRadius = '5px';
+        newItem.id = 'tempId';
+        newItem.addEventListener('dragover', function(ev) {
+            ev.stopPropagation();
+            return;
+        }, false)
+        // newItem.style.position = 'absolute';
+        document.body.appendChild(newItem);
+        // newItem.style.top = '-10000px';
+    }
+    let newItem = document.querySelector('#tempId');
+    if (dragElem.element.tagName === 'DIV') {
+        // console.log(1);
+        if (this.tagName === 'DIV') {
+            if (delta >= 0) {
+                this.parentNode.insertBefore(newItem, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(newItem, this);
+            }
+        } else if (this.tagName === 'SECTION') {
+            this.insertBefore(newItem, this.lastChild);
+        }
+    } else if (dragElem.element.tagName === 'SECTION') {
+        console.log(delta2);
+        if (this.tagName === 'DIV') {
+            if (delta2 < 0) {
+                this.parentNode.parentNode.insertBefore(newItem, this.parentNode);
+            } else {
+                let buff = this.parentNode.nextSibling ? true : false;
+                buff ? this.parentNode.nextSibling.parentNode.insertBefore(newItem, this.parentNode.nextSibling) : this.parentNode.parentNode.appendChild(newItem);
+            }
+        } else if (this.tagName === 'SECTION') {
+            if (delta2 < 0) {
+                this.parentNode.insertBefore(newItem, this);
+            } else {
+                let buff = this.nextSibling ? true : false;
+                buff ? this.nextSibling.parentNode.insertBefore(newItem, this.nextSibling) : this.parentNode.appendChild(newItem);
+            }
+        }
+    }
+    e.preventDefault();
     return false;
 }
 Fabric.prototype.dropFun = function(e) {
@@ -223,7 +274,7 @@ Fabric.section = function(text) {
     // baton.onclick = saveAll;
     baton.render(cont);
     divInner.onfocus = function(e) {
-        this.style.width = '70%';
+        this.style.width = '60%';
         this.nextSibling.style.width = '20%';
         this.nextSibling.style.display = 'inline-block';
     }

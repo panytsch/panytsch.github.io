@@ -95,14 +95,16 @@ header button {
 }
 
 .tempDiv {
-    background-color: #5926C6;
+    background-color: #527F79;
     border-radius: 5px;
-    height: 20px;
 }
 
 .clone {
     pointer-events: none;
     position: absolute;
     top: -10000px;
-    transform: rotate(-5deg);
+    transform: rotate(5deg);
+    margin: 5px 5px;
+    font: 400 18px/30px Arial, sans-serif;
+    padding: 0 7px;
 }
