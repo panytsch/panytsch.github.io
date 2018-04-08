@@ -65,8 +65,6 @@ function Fabric() {}
 Fabric.prototype.render = function(noda) {
     noda.appendChild(this.code);
 };
-Fabric.prototype.dragenterFun = function(e) {}
-Fabric.prototype.dragleaveFun = function(e) {}
 Fabric.prototype.dragFun = function(e) {
     e.stopPropagation();
     dragElem.clone.style.left = e.pageX - dragElem.deltaX + 'px';
@@ -90,12 +88,13 @@ Fabric.prototype.dragStartFun = function(e) {
     dragElem.coordsTop = coords.top;
     this.style.opacity = '0';
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("Text", this.id);
 }
 Fabric.prototype.dragendFun = function(e) {
     dragElem.element.style.opacity = '1';
     let clone = document.querySelector('.clone');
     let clone2 = document.querySelector('#tempId');
+    clone2.firstChild.id = '';
+    clone2.parentNode.insertBefore(clone2.firstChild, clone2);
     clone.parentNode.removeChild(clone);
     clone2.parentNode.removeChild(clone2);
     e.stopPropagation();
@@ -120,9 +119,8 @@ Fabric.prototype.dragoverFun = function(e) {
             ev.stopPropagation();
             return;
         }, false)
-        // newItem.style.position = 'absolute';
+        newItem.appendChild(document.querySelector('#newId'));
         document.body.appendChild(newItem);
-        // newItem.style.top = '-10000px';
     }
     let newItem = document.querySelector('#tempId');
     if (dragElem.element.tagName === 'DIV') {
@@ -137,7 +135,6 @@ Fabric.prototype.dragoverFun = function(e) {
             this.insertBefore(newItem, this.lastChild);
         }
     } else if (dragElem.element.tagName === 'SECTION') {
-        console.log(delta2);
         if (this.tagName === 'DIV') {
             if (delta2 < 0) {
                 this.parentNode.parentNode.insertBefore(newItem, this.parentNode);
@@ -157,24 +154,6 @@ Fabric.prototype.dragoverFun = function(e) {
     e.preventDefault();
     return false;
 }
-Fabric.prototype.dropFun = function(e) {
-    let id = e.dataTransfer.getData('Text');
-    let elem = document.getElementById(id);
-    if (this.tagName !== 'SECTION' && elem.tagName !== 'SECTION') {
-        this.parentNode.insertBefore(elem, this);
-    } else if (elem.tagName !== 'SECTION') {
-        this.insertBefore(elem, this.lastChild);
-    } else if (elem.tagName === 'SECTION' && (this.tagName === 'DIV' || this.tagName === 'input')) {
-        this.parentNode.parentNode.insertBefore(elem, this.parentNode);
-    } else {
-        this.parentNode.insertBefore(elem, this);
-    }
-    elem.id = '';
-    e.preventDefault();
-    e.stopPropagation();
-    // saveAll();
-    return false;
-}
 Fabric.create = function(type, text) {
     let ctor = type,
         newFabric;
@@ -186,12 +165,9 @@ Fabric.create = function(type, text) {
     }
     newFabric = new Fabric[ctor](text);
     if (newFabric.code.tagName === 'SECTION' || newFabric.code.className === 'content') {
-        newFabric.code.addEventListener('dragenter', newFabric.dragenterFun, false);
-        newFabric.code.addEventListener('dragleave', newFabric.dragleaveFun, false);
         newFabric.code.addEventListener('dragstart', newFabric.dragStartFun, false);
         newFabric.code.addEventListener('dragend', newFabric.dragendFun, false);
         newFabric.code.addEventListener('dragover', newFabric.dragoverFun, false);
-        newFabric.code.addEventListener('drop', newFabric.dropFun, false);
         newFabric.code.addEventListener('drag', newFabric.dragFun, false);
     }
     return newFabric;
@@ -282,6 +258,23 @@ Fabric.section = function(text) {
         this.style.width = '100%';
         this.nextSibling.style.width = '0';
         this.nextSibling.style.display = 'none';
+    }
+    diva.onmouseover = function(e) {
+        if (this.firstChild.id === 'firstId') {
+            return;
+        }
+        let newdiva = document.createElement('div');
+        newdiva.className = 'inner';
+        newdiva.id = "firstId";
+        newdiva.setAttribute('title', 'delete block');
+        newdiva.innerText = 'X';
+        newdiva.onclick = function(e) {
+            this.parentNode.parentNode.removeChild(this.parentNode);
+        }
+        this.firstChild ? this.insertBefore(newdiva, this.firstChild) : this.appendChild(newdiva);
+    }
+    diva.onmouseleave = function(e) {
+        this.removeChild(this.firstChild);
     }
     this.code.appendChild(cont);
 }
