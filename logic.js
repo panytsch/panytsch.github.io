@@ -125,35 +125,27 @@ Fabric.prototype.dragoverFun = function(e) {
     }
     let newItem = document.querySelector('#tempId');
     if (dragElem.element.tagName === 'DIV') {
-        if (this.tagName === 'DIV' && this.className === 'container') {
+        if (this.tagName === 'DIV' && this.className === 'content') {
             if (delta >= 0) {
                 this.parentNode.insertBefore(newItem, this.nextSibling);
-                console.log(1);
             } else {
                 this.parentNode.insertBefore(newItem, this);
-                console.log(2);
             }
         } else if (this.tagName === 'SECTION') {
-        	// console.log(this);
-        	this.lastChild.tagName === 'INPUT' ? this.insertBefore(newItem, this.lastChild) : this.insertBefore(newItem, this.childNodes[1]);
-        	// console.log(3);
+            this.lastChild.tagName === 'INPUT' ? this.insertBefore(newItem, this.lastChild) : this.insertBefore(newItem, this.childNodes[1]);
         }
     } else if (dragElem.element.tagName === 'SECTION') {
         if (this.tagName === 'DIV') {
             if (delta2 < 0) {
-            	console.log(4);
                 this.parentNode.parentNode.insertBefore(newItem, this.parentNode);
             } else {
-            	console.log(5);
                 let buff = this.parentNode.nextSibling ? true : false;
                 buff ? this.parentNode.nextSibling.parentNode.insertBefore(newItem, this.parentNode.nextSibling) : this.parentNode.parentNode.appendChild(newItem);
             }
         } else if (this.tagName === 'SECTION') {
             if (delta2 < 0) {
-            	console.log(6);
                 this.parentNode.insertBefore(newItem, this);
             } else {
-            	console.log(7);
                 let buff = this.nextSibling ? true : false;
                 buff ? this.nextSibling.parentNode.insertBefore(newItem, this.nextSibling) : this.parentNode.appendChild(newItem);
             }
@@ -199,7 +191,7 @@ Fabric.content = function(text) {
         this.appendChild(newdiva);
     }
     diva.onmouseleave = function(e) {
-   		this.removeChild(this.lastChild);
+        this.removeChild(this.lastChild);
     }
     this.code = diva;
 }
@@ -282,9 +274,9 @@ Fabric.section = function(text) {
         this.firstChild ? this.insertBefore(newdiva, this.firstChild) : this.appendChild(newdiva);
     }
     diva.onmouseleave = function(e) {
-    	if (this.firstChild.id === 'firstId') {
- 	       this.removeChild(this.firstChild);
-    	}
+        if (this.firstChild.id === 'firstId') {
+            this.removeChild(this.firstChild);
+        }
     }
     this.code.appendChild(cont);
 }
